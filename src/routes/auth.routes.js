@@ -8,7 +8,6 @@ const authController = require('../controllers/auth.controller')
  * @desc Register a new user
  * @access Public
  */
-
 authRouter.post('/register', authController.registerUserController)
 
 /**
@@ -16,7 +15,13 @@ authRouter.post('/register', authController.registerUserController)
  * @desc Login a user
  * @access Public
  */
-
 authRouter.post('/login', authController.loginUserController)
+
+/**
+ * @route GET api/auth/logout
+ * @desc Logout a user
+ * @access Public
+ */
+authRouter.get('/logout', authController.logoutUserController)
 
 module.exports = authRouter
