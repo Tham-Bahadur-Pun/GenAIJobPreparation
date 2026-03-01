@@ -30,6 +30,6 @@ authRouter.get('/logout', authController.logoutUserController)
  * @desc Get the logged in user's details
  * @access Private
  */
-authRouter.get('/get-me', authMiddleware, authController.getMeController)
+authRouter.get('/get-me', authMiddleware.authUser, authController.getMeController)
 
 module.exports = authRouter
