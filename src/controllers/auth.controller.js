@@ -49,7 +49,47 @@ async function registerUserController(req, res) {
 
 }
 
+/**
+ * @name loginUserController
+ * @desc Login a user
+ * @access Public
+ */
+
+async function loginUserController(req, res) {
+    const { email, password } = req.body
+
+    const user = await userModel.findOne({ email })
+
+    if (!user) {
+        return res.status(400).json({
+            message: 'User not found'
+        })
+    }
+
+    const isPasswordValid = await bcryptJs.compare(password, user.password)
+
+    if (!isPasswordValid) {
+        return res.status(400).json({
+            message: 'Invalid password'
+        })
+    }
+
+    const token = jwt.sign({ id: user._id, userName: user.userName }, process.env.JWT_SECRET, { expiresIn: '1d' })
+
+    res.cookie('token', token)
+
+    res.status(200).json({
+        message: 'User logged in successfully',
+        user: {
+            id: user._id,
+            userName: user.userName,
+            email: user.email
+        }
+    })
+}
+
 
 module.exports = {
-    registerUserController
+    registerUserController,
+    loginUserController
 }
