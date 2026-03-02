@@ -7,30 +7,51 @@ export const useAuth = () => {
 
     const handleLogin = async ({ email, password }) => {
         setLoading(true);
-        const data = await login({ email, password });
-        setUser(data.user);
+        try {
+            const data = await login({ email, password });
+            setUser(data.user);
+        } catch (error) {
+            console.error("Login error:", error);
+        } finally {
+            setLoading(false);
+        }
         setLoading(false);
     }
 
     const handleLogout = async () => {
         setLoading(true);
-        await logout();
-        setUser(null);
-        setLoading(false);
+        try {
+            await logout();
+            setUser(null);
+        } catch (error) {
+            console.error("Logout error:", error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const handleRegister = async ({ userName, email, password }) => {
         setLoading(true);
-        const data = await register({ userName, email, password });
-        setUser(data.user);
-        setLoading(false);
+        try {
+            const data = await register({ userName, email, password });
+            setUser(data.user);
+        } catch (error) {
+            console.error("Register error:", error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const fetchMe = async () => {
         setLoading(true);
-        const data = await getMe();
-        setUser(data.user);
-        setLoading(false);
+        try {
+            const data = await getMe();
+            setUser(data.user);
+        } catch (error) {
+            console.error("Fetch me error:", error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     return {
@@ -41,4 +62,5 @@ export const useAuth = () => {
         handleRegister,
         fetchMe
     }
+
 }
