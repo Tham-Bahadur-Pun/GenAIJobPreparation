@@ -1,6 +1,7 @@
 const express = require('express')
 const cookieParse = require('cookie-parser')
 const cors = require('cors')
+const { generateInterviewReport } = require('./services/ai.service')
 
 const app = express()
 
@@ -11,6 +12,7 @@ app.use(cors({
     credentials: true
 }))
 
+// generateInterviewReport({ resume: 'test', selfDescription: 'test', jobDescription: 'test' })
 // require all the routes here
 const authRouter = require('./routes/auth.routes')
 const interviewRouter = require('./routes/interview.routes')

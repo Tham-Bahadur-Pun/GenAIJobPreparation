@@ -81,10 +81,11 @@ const interviewReportSchema = new mongoose.Schema({
         min: 0,
         max: 100
     },
-    technicalQuestions: [technicalQuestionsSchema],
-    behavioralQuestions: [behavioralQuestionsSchema],
-    skillGaps: [skillGapsSchema],
-    preparationPlan: [preparationPlanSchema],
+    // Todo: Change these to technicalQuestionsSchema, behavioralQuestionsSchema, skillGapsSchema, preparationPlanSchema respectively
+    technicalQuestions: [String],
+    behavioralQuestions: [String],
+    skillGaps: [String],
+    preparationPlan: [String],
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",

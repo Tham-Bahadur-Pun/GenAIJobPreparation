@@ -3,6 +3,47 @@ const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
 
+// function safeParseObjectString(str) {
+//     if (typeof str !== "string") return str
+
+//     // Remove leading/trailing whitespace
+//     let cleaned = str.trim()
+
+//     // Remove wrapping quotes if they exist
+//     if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
+//         cleaned = cleaned.slice(1, -1)
+//     }
+
+//     // Remove trailing comma
+//     cleaned = cleaned.replace(/,\s*$/, "")
+
+//     // Ensure it starts with property name
+//     if (!cleaned.startsWith('"')) {
+//         cleaned = `"${cleaned}`
+//     }
+
+//     try {
+//         return JSON.parse(`{${cleaned}}`)
+//     } catch (err) {
+//         console.error("FAILED TO PARSE:", cleaned)
+//         throw err
+//     }
+// }
+
+// function normalizeArray(arr) {
+//     return arr.map(item => safeParseObjectString(item))
+// }
+
+// function normalizeReport(report) {
+//     return {
+//         ...report,
+//         technicalQuestions: normalizeArray(report.technicalQuestions),
+//         behavioralQuestions: normalizeArray(report.behavioralQuestions),
+//         skillGaps: normalizeArray(report.skillGaps),
+//         preparationPlan: normalizeArray(report.preparationPlan)
+//     }
+// }
+
 const interviewReportSchema = z.object({
     matchScore: z.number().describe("A score between 0 and 100 that indicates how well the candidate's profile matches the job description, based on the analysis of the resume, self-description, and job description."),
 
@@ -36,23 +77,70 @@ const ai = new GoogleGenAI({
 
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 
-    const prompt = `Generate a interview report based on the following information:
-        Resume: ${resume}
-        Self-description: ${selfDescription}
-        Job description: ${jobDescription}
-    `
+    const prompt = `
+You are an expert Technical Recruiter and Career Coach.
+
+Analyze the given candidate data and return ONLY valid JSON.
+    Resume: ${resume}
+    Self-description: ${selfDescription}
+    Job description: ${jobDescription}
+
+IMPORTANT:
+- Each item inside technicalQuestions MUST be a  object with question, intention, and answer properties.
+- Each item inside behavioralQuestions MUST be a  object with question, intention, and answer properties.
+- Each item inside skillGaps MUST be a object with skill and severity properties.
+- Each item inside preparationPlan MUST be a  object with day, focus, and tasks properties.
+- DO NOT return flattened key-value arrays.
+- DO NOT return string pairs.
+
+If the format is incorrect, the response is invalid.
+
+Return strictly this structure:
+
+{
+  matchScore: number,
+  technicalQuestions: [
+    {
+      question: string,
+      intention: string,
+      answer: string
+    }
+  ],
+  behavioralQuestions: [
+    {
+      question: string,
+      intention: string,
+      answer: string
+    }
+  ],
+  skillGaps: [
+    {
+      skill: string,
+      severity: "low" | "medium" | "high"
+    }
+  ],
+  preparationPlan: [
+    {
+      day: number,
+      focus: string,
+      tasks: string[]
+    }
+  ]
+}
+
+Return ONLY valid JSON.
+No markdown.
+No explanation.
+`;
 
     const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.5-flash",
         contents: prompt,
         config: {
             responseMimeType: "application/json",
             responseSchema: zodToJsonSchema(interviewReportSchema),
-        }
+        },
     })
-
-    console.log("AI Response:", response.text)
-
     return JSON.parse(response.text)
 }
 
